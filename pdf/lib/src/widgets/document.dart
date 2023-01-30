@@ -127,10 +127,10 @@ class Document {
 
   Future<Uint8List> save({SaveCallback? callback}) async {
     if (!_paint) {
-      var complete = 0;
+      var processed = 0;
       for (final page in _pages) {
         page.postProcess(this);
-        final exit = callback?.call(total: _pages.length, complete: ++complete);
+        final exit = callback?.call(_pages.length, ++processed);
         if (exit == true) {
           return Uint8List.fromList([]);
         }
@@ -142,5 +142,6 @@ class Document {
   }
 }
 
-/// Callback used to save data
-typedef SaveCallback = bool Function({int total, int complete});
+/// Callback used to save data.
+/// Return [true] if function must stop immediately.
+typedef SaveCallback = bool Function(int total, int processed);
