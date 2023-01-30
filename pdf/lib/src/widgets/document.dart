@@ -125,13 +125,22 @@ class Document {
     _pages.add(page);
   }
 
-  Future<Uint8List> save() async {
+  Future<Uint8List> save({SaveCallback? callback}) async {
     if (!_paint) {
+      var complete = 0;
       for (final page in _pages) {
         page.postProcess(this);
+        final exit = callback?.call(total: _pages.length, complete: ++complete);
+        if (exit == true) {
+          return Uint8List.fromList([]);
+        }
+        await Future<dynamic>.delayed(Duration.zero);
       }
       _paint = true;
     }
     return await document.save();
   }
 }
+
+/// Callback used to save data
+typedef SaveCallback = bool Function({int total, int complete});
